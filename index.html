@@ -30,19 +30,21 @@
 const { useState, useRef, useMemo } = React;
 
 const INITIAL_PRODUCTS = [
-  { id: 1, name: "Arroz Extra 5kg", code: "7751234000101", category: "Abarrotes", type: "quantity", price: 22.50, cost: 18.00, stock: 45, minStock: 10, unit: "un." },
-  { id: 2, name: "Aceite Vegetal 1L", code: "7751234000102", category: "Abarrotes", type: "quantity", price: 9.90, cost: 7.50, stock: 30, minStock: 8, unit: "un." },
-  { id: 3, name: "Galleta Soda (paq.)", code: "7751234000103", category: "Abarrotes", type: "quantity", price: 1.80, cost: 1.20, stock: 3, minStock: 10, unit: "un." },
-  { id: 4, name: "Gaseosa 1.5L", code: "7751234000104", category: "Bebidas", type: "quantity", price: 6.50, cost: 4.80, stock: 25, minStock: 10, unit: "un." },
-  { id: 5, name: "Leche Evaporada", code: "7751234000105", category: "Lácteos", type: "quantity", price: 4.20, cost: 3.30, stock: 38, minStock: 12, unit: "un." },
-  { id: 6, name: "Fideos Tallarín 500g", code: "7751234000106", category: "Abarrotes", type: "quantity", price: 3.50, cost: 2.60, stock: 50, minStock: 15, unit: "un." },
-  { id: 7, name: "Azúcar Rubia 1kg", code: "7751234000107", category: "Abarrotes", type: "quantity", price: 4.80, cost: 3.80, stock: 22, minStock: 8, unit: "un." },
-  { id: 8, name: "Pollo Entero", code: "7751234000201", category: "Carnes", type: "weight", price: 10.90, cost: 8.50, stock: 15.5, minStock: 5, unit: "kg" },
-  { id: 9, name: "Papa Blanca", code: "7751234000202", category: "Verduras", type: "weight", price: 3.20, cost: 2.20, stock: 40, minStock: 10, unit: "kg" },
-  { id: 10, name: "Cebolla Roja", code: "7751234000203", category: "Verduras", type: "weight", price: 4.50, cost: 3.20, stock: 20, minStock: 5, unit: "kg" },
-  { id: 11, name: "Tomate", code: "7751234000204", category: "Verduras", type: "weight", price: 5.00, cost: 3.50, stock: 12, minStock: 4, unit: "kg" },
-  { id: 12, name: "Limón", code: "7751234000205", category: "Frutas", type: "weight", price: 6.50, cost: 4.80, stock: 8, minStock: 3, unit: "kg" },
+  { id: 1, name: "Arroz Extra 5kg", code: "7751234000101", category: "Abarrotes", type: "quantity", price: 22.50, cost: 18.00, stock: 45, minStock: 10, unit: "un.", image: "", emoji: "🍚" },
+  { id: 2, name: "Aceite Vegetal 1L", code: "7751234000102", category: "Abarrotes", type: "quantity", price: 9.90, cost: 7.50, stock: 30, minStock: 8, unit: "un.", image: "", emoji: "🫒" },
+  { id: 3, name: "Galleta Soda (paq.)", code: "7751234000103", category: "Abarrotes", type: "quantity", price: 1.80, cost: 1.20, stock: 3, minStock: 10, unit: "un.", image: "", emoji: "🍪" },
+  { id: 4, name: "Gaseosa 1.5L", code: "7751234000104", category: "Bebidas", type: "quantity", price: 6.50, cost: 4.80, stock: 25, minStock: 10, unit: "un.", image: "", emoji: "🥤" },
+  { id: 5, name: "Leche Evaporada", code: "7751234000105", category: "Lácteos", type: "quantity", price: 4.20, cost: 3.30, stock: 38, minStock: 12, unit: "un.", image: "", emoji: "🥛" },
+  { id: 6, name: "Fideos Tallarín 500g", code: "7751234000106", category: "Abarrotes", type: "quantity", price: 3.50, cost: 2.60, stock: 50, minStock: 15, unit: "un.", image: "", emoji: "🍝" },
+  { id: 7, name: "Azúcar Rubia 1kg", code: "7751234000107", category: "Abarrotes", type: "quantity", price: 4.80, cost: 3.80, stock: 22, minStock: 8, unit: "un.", image: "", emoji: "🧂" },
+  { id: 8, name: "Pollo Entero", code: "7751234000201", category: "Carnes", type: "weight", price: 10.90, cost: 8.50, stock: 15.5, minStock: 5, unit: "kg", image: "", emoji: "🍗" },
+  { id: 9, name: "Papa Blanca", code: "7751234000202", category: "Verduras", type: "weight", price: 3.20, cost: 2.20, stock: 40, minStock: 10, unit: "kg", image: "", emoji: "🥔" },
+  { id: 10, name: "Cebolla Roja", code: "7751234000203", category: "Verduras", type: "weight", price: 4.50, cost: 3.20, stock: 20, minStock: 5, unit: "kg", image: "", emoji: "🧅" },
+  { id: 11, name: "Tomate", code: "7751234000204", category: "Verduras", type: "weight", price: 5.00, cost: 3.50, stock: 12, minStock: 4, unit: "kg", image: "", emoji: "🍅" },
+  { id: 12, name: "Limón", code: "7751234000205", category: "Frutas", type: "weight", price: 6.50, cost: 4.80, stock: 8, minStock: 3, unit: "kg", image: "", emoji: "🍋" },
 ];
+
+const CATEGORY_EMOJI = { Abarrotes: "📦", Bebidas: "🥤", Lácteos: "🥛", Carnes: "🥩", Verduras: "🥬", Frutas: "🍎", Limpieza: "🧹", Otros: "🏷️" };
 
 const CLIENTS = [
   { id: 1, name: "María López", dni: "45678901", phone: "987654321", balance: 45.00 },
@@ -175,7 +177,7 @@ function POS() {
   const [showSales, setShowSales] = useState(false);
   const [salesHistory, setSalesHistory] = useState([]);
   const [showProductPanel, setShowProductPanel] = useState(false);
-  const [newProduct, setNewProduct] = useState({ name: "", code: "", category: "Abarrotes", type: "quantity", price: "", cost: "", stock: "", minStock: "" });
+  const [newProduct, setNewProduct] = useState({ name: "", code: "", category: "Abarrotes", type: "quantity", price: "", cost: "", stock: "", minStock: "", image: "" });
   const [productSuccess, setProductSuccess] = useState(null);
   const [editingProduct, setEditingProduct] = useState(null);
   const searchRef = useRef(null);
@@ -233,17 +235,17 @@ function POS() {
 
   const addNewProduct = () => {
     if (!newProduct.name || !newProduct.price || !newProduct.stock) return;
-    const p = { id: Date.now(), name: newProduct.name, code: newProduct.code || String(Date.now()).slice(-13), category: newProduct.category, type: newProduct.type, price: parseFloat(newProduct.price), cost: parseFloat(newProduct.cost) || 0, stock: parseFloat(newProduct.stock), minStock: parseFloat(newProduct.minStock) || 5, unit: newProduct.type === "weight" ? "kg" : "un." };
+    const p = { id: Date.now(), name: newProduct.name, code: newProduct.code || String(Date.now()).slice(-13), category: newProduct.category, type: newProduct.type, price: parseFloat(newProduct.price), cost: parseFloat(newProduct.cost) || 0, stock: parseFloat(newProduct.stock), minStock: parseFloat(newProduct.minStock) || 5, unit: newProduct.type === "weight" ? "kg" : "un.", image: newProduct.image || "", emoji: CATEGORY_EMOJI[newProduct.category] || "🏷️" };
     setProducts(prev => [...prev, p]);
-    setNewProduct({ name: "", code: "", category: "Abarrotes", type: "quantity", price: "", cost: "", stock: "", minStock: "" });
+    setNewProduct({ name: "", code: "", category: "Abarrotes", type: "quantity", price: "", cost: "", stock: "", minStock: "", image: "" });
     setProductSuccess('"' + p.name + '" agregado'); setTimeout(() => setProductSuccess(null), 3000);
   };
 
   const deleteProduct = (id) => { setProducts(prev => prev.filter(p => p.id !== id)); setCart(prev => prev.filter(item => item.id !== id)); };
-  const startEditProduct = (p) => setEditingProduct({ ...p, price: String(p.price), cost: String(p.cost), stock: String(p.stock), minStock: String(p.minStock) });
+  const startEditProduct = (p) => setEditingProduct({ ...p, price: String(p.price), cost: String(p.cost), stock: String(p.stock), minStock: String(p.minStock), image: p.image || "" });
   const saveEditProduct = () => {
     if (!editingProduct) return;
-    setProducts(prev => prev.map(p => p.id === editingProduct.id ? { ...editingProduct, price: parseFloat(editingProduct.price), cost: parseFloat(editingProduct.cost) || 0, stock: parseFloat(editingProduct.stock), minStock: parseFloat(editingProduct.minStock) || 5, unit: editingProduct.type === "weight" ? "kg" : "un." } : p));
+    setProducts(prev => prev.map(p => p.id === editingProduct.id ? { ...editingProduct, price: parseFloat(editingProduct.price), cost: parseFloat(editingProduct.cost) || 0, stock: parseFloat(editingProduct.stock), minStock: parseFloat(editingProduct.minStock) || 5, unit: editingProduct.type === "weight" ? "kg" : "un.", image: editingProduct.image || "", emoji: editingProduct.emoji || CATEGORY_EMOJI[editingProduct.category] || "🏷️" } : p));
     setProductSuccess('"' + editingProduct.name + '" actualizado'); setEditingProduct(null); setTimeout(() => setProductSuccess(null), 3000);
   };
 
@@ -311,15 +313,24 @@ function POS() {
           <div style={{ flex: 1, overflowY: "auto", padding: "4px 20px 20px", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(165px, 1fr))", gap: 10, alignContent: "start" }}>
             {filteredProducts.map((p, i) => (
               <div key={p.id} style={{ position: "relative", animation: "fadeUp 0.3s ease " + (i * 0.02) + "s both" }}>
-                <button onClick={() => addToCart(p)} style={{ width: "100%", padding: "16px 14px", borderRadius: S.radius, border: "1.5px solid " + S.border, background: "#fff", cursor: "pointer", textAlign: "left", fontFamily: S.font, display: "flex", flexDirection: "column", gap: 8, boxShadow: S.shadow, transition: "all 0.15s" }} onMouseEnter={e => { e.currentTarget.style.borderColor = S.accent; e.currentTarget.style.boxShadow = "0 4px 12px rgba(14,165,233,0.1)"; e.currentTarget.style.transform = "translateY(-1px)"; }} onMouseLeave={e => { e.currentTarget.style.borderColor = S.border; e.currentTarget.style.boxShadow = S.shadow; e.currentTarget.style.transform = "translateY(0)"; }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", width: "100%" }}>
-                    <span style={{ fontSize: 10, padding: "3px 8px", borderRadius: 6, background: p.type === "weight" ? S.amberBg : S.accentBg, color: p.type === "weight" ? S.amber : S.accent, fontWeight: 700 }}>{p.type === "weight" ? "⚖️ Peso" : "📦 Qty"}</span>
-                    <span style={{ fontSize: 10, color: p.stock <= p.minStock ? S.red : S.textLight, fontWeight: 600 }}>{p.stock} {p.unit}</span>
+                <button onClick={() => addToCart(p)} style={{ width: "100%", padding: 0, borderRadius: S.radius, border: "1.5px solid " + S.border, background: "#fff", cursor: "pointer", textAlign: "left", fontFamily: S.font, display: "flex", flexDirection: "column", boxShadow: S.shadow, transition: "all 0.15s", overflow: "hidden" }} onMouseEnter={e => { e.currentTarget.style.borderColor = S.accent; e.currentTarget.style.boxShadow = "0 4px 12px rgba(14,165,233,0.1)"; e.currentTarget.style.transform = "translateY(-1px)"; }} onMouseLeave={e => { e.currentTarget.style.borderColor = S.border; e.currentTarget.style.boxShadow = S.shadow; e.currentTarget.style.transform = "translateY(0)"; }}>
+                  {/* Product Image */}
+                  <div style={{ width: "100%", height: 90, background: p.image ? "transparent" : "linear-gradient(135deg, #f8fafc, #eef2ff)", display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden" }}>
+                    {p.image ? (
+                      <img src={p.image} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
+                      <span style={{ fontSize: 36 }}>{p.emoji || CATEGORY_EMOJI[p.category] || "📦"}</span>
+                    )}
+                    <span style={{ position: "absolute", top: 6, left: 6, fontSize: 9, padding: "2px 7px", borderRadius: 5, background: p.type === "weight" ? "rgba(245,158,11,0.9)" : "rgba(14,165,233,0.9)", color: "#fff", fontWeight: 700, backdropFilter: "blur(4px)" }}>{p.type === "weight" ? "⚖️ Peso" : "📦 Qty"}</span>
+                    <span style={{ position: "absolute", top: 6, right: 6, fontSize: 9, padding: "2px 7px", borderRadius: 5, background: p.stock <= p.minStock ? "rgba(239,68,68,0.9)" : "rgba(255,255,255,0.9)", color: p.stock <= p.minStock ? "#fff" : S.textMuted, fontWeight: 600, backdropFilter: "blur(4px)" }}>{p.stock} {p.unit}</span>
                   </div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: S.text, lineHeight: 1.35 }}>{p.name}</div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
-                    <span style={{ fontSize: 17, fontWeight: 800, color: S.accent, fontFamily: S.mono }}>S/{p.price.toFixed(2)}</span>
-                    {isAdmin && <span style={{ fontSize: 10, color: S.textLight, fontFamily: S.mono }}>C:{p.cost.toFixed(2)}</span>}
+                  {/* Product Info */}
+                  <div style={{ padding: "10px 14px 14px", display: "flex", flexDirection: "column", gap: 4, width: "100%" }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: S.text, lineHeight: 1.3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+                      <span style={{ fontSize: 17, fontWeight: 800, color: S.accent, fontFamily: S.mono }}>S/{p.price.toFixed(2)}</span>
+                      {isAdmin && <span style={{ fontSize: 10, color: S.textLight, fontFamily: S.mono }}>C:{p.cost.toFixed(2)}</span>}
+                    </div>
                   </div>
                 </button>
                 {weightInput[p.id] && (
@@ -379,9 +390,12 @@ function POS() {
                 {cart.length === 0 ? (
                   <div style={{ textAlign: "center", color: S.textLight, marginTop: 60 }}><div style={{ fontSize: 44, marginBottom: 8, opacity: 0.3 }}>🛒</div><div style={{ fontSize: 13 }}>Selecciona productos para vender</div></div>
                 ) : cart.map(item => (
-                  <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 0", borderBottom: "1px solid " + S.borderLight }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>{item.name}</div>
+                  <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 0", borderBottom: "1px solid " + S.borderLight }}>
+                    <div style={{ width: 40, height: 40, borderRadius: 8, overflow: "hidden", flexShrink: 0, background: item.image ? "transparent" : "linear-gradient(135deg, #f8fafc, #eef2ff)", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid " + S.borderLight }}>
+                      {item.image ? <img src={item.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span style={{ fontSize: 18 }}>{item.emoji || CATEGORY_EMOJI[item.category] || "📦"}</span>}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.name}</div>
                       <div style={{ fontSize: 12, color: S.textLight, fontFamily: S.mono }}>S/{item.price.toFixed(2)} × {item.type === "weight" ? item.quantity + "kg" : item.quantity}</div>
                     </div>
                     {item.type === "quantity" && (
@@ -437,6 +451,26 @@ function POS() {
                     <div style={{ display: "grid", gap: 10 }}>
                       <input value={fd.name} onChange={e => setFd({ name: e.target.value })} placeholder="Nombre del producto *" style={inputBase} />
                       <input value={fd.code} onChange={e => setFd({ code: e.target.value })} placeholder="Código de barras (opcional)" style={inputBase} />
+                      {/* Image Upload */}
+                      <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                        <label style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "12px 14px", borderRadius: S.radiusSm, border: "1.5px dashed " + (fd.image ? S.green : S.border), background: fd.image ? S.greenBg : "#fff", cursor: "pointer", fontSize: 12, fontWeight: 600, color: fd.image ? S.green : S.textLight, transition: "all 0.15s" }}>
+                          {fd.image ? "✅ Imagen cargada" : "📷 Subir imagen"}
+                          <input type="file" accept="image/*" style={{ display: "none" }} onChange={e => {
+                            const file = e.target.files[0];
+                            if (!file) return;
+                            if (file.size > 2 * 1024 * 1024) { alert("Imagen muy grande (máx 2MB)"); return; }
+                            const reader = new FileReader();
+                            reader.onload = (ev) => setFd({ image: ev.target.result });
+                            reader.readAsDataURL(file);
+                          }} />
+                        </label>
+                        {fd.image && (
+                          <div style={{ position: "relative", width: 52, height: 52, borderRadius: S.radiusSm, overflow: "hidden", border: "1.5px solid " + S.border, flexShrink: 0 }}>
+                            <img src={fd.image} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                            <button onClick={() => setFd({ image: "" })} style={{ position: "absolute", top: -1, right: -1, width: 18, height: 18, borderRadius: "0 0 0 6px", border: "none", background: S.red, color: "#fff", fontSize: 10, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+                          </div>
+                        )}
+                      </div>
                       <div style={{ display: "flex", gap: 8 }}>
                         <select value={fd.category} onChange={e => setFd({ category: e.target.value })} style={{ ...inputBase, flex: 1 }}>
                           {["Abarrotes", "Bebidas", "Lácteos", "Carnes", "Verduras", "Frutas", "Limpieza", "Otros"].map(c => <option key={c} value={c}>{c}</option>)}
@@ -473,8 +507,10 @@ function POS() {
                 <span style={{ fontSize: 10, fontWeight: 500, color: S.textLight }}>En memoria</span>
               </div>
               {products.map(p => (
-                <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: S.radiusSm, border: "1px solid " + S.borderLight, background: "#fff", marginBottom: 6 }}>
-                  <span style={{ fontSize: 10, padding: "3px 7px", borderRadius: 6, background: p.type === "weight" ? S.amberBg : S.accentBg, color: p.type === "weight" ? S.amber : S.accent, fontWeight: 700 }}>{p.type === "weight" ? "⚖️" : "📦"}</span>
+                <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 14px", borderRadius: S.radiusSm, border: "1px solid " + S.borderLight, background: "#fff", marginBottom: 6 }}>
+                  <div style={{ width: 38, height: 38, borderRadius: 8, overflow: "hidden", flexShrink: 0, background: p.image ? "transparent" : "linear-gradient(135deg, #f8fafc, #eef2ff)", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid " + S.borderLight }}>
+                    {p.image ? <img src={p.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span style={{ fontSize: 18 }}>{p.emoji || CATEGORY_EMOJI[p.category] || "📦"}</span>}
+                  </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 13, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
                     <div style={{ fontSize: 11, color: S.textLight }}>{p.category} · {p.stock} {p.unit}</div>
