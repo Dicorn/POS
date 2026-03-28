@@ -139,6 +139,84 @@ function downloadSalesReport(sales) {
   XLSX.writeFile(wb, "ventas_" + today.replace(/\//g, "-") + ".xlsx");
 }
 
+function downloadSalesReportPDF(sales) {
+  if (!sales.length) return;
+  var today = new Date().toLocaleDateString("es-PE");
+  var totalVentas = sales.reduce(function(s, v) { return s + v.total; }, 0);
+  var totalPendiente = sales.reduce(function(s, v) { return s + v.pending; }, 0);
+  var totalCobrado = totalVentas - totalPendiente;
+
+  var productMap = {};
+  sales.forEach(function(s) {
+    s.items.forEach(function(item) {
+      if (!productMap[item.name]) productMap[item.name] = { qty: 0, total: 0 };
+      productMap[item.name].qty += item.quantity;
+      productMap[item.name].total += item.subtotal;
+    });
+  });
+
+  var salesRows = sales.map(function(s) {
+    var items = s.items.map(function(i) { return i.name + " (" + i.quantity + ")"; }).join(", ");
+    var estado = s.paymentStatus === "paid" ? "Pagado" : s.paymentStatus === "debt" ? "Deuda" : "Parcial";
+    var estadoColor = s.paymentStatus === "paid" ? "#10b981" : s.paymentStatus === "debt" ? "#ef4444" : "#f59e0b";
+    return '<tr><td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;font-family:JetBrains Mono,monospace;color:#0ea5e9;font-weight:600">' + s.receiptNumber + '</td>' +
+      '<td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px">' + s.date + '</td>' +
+      '<td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px">' + s.client.name + '</td>' +
+      '<td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px">' + (s.receiptType === "boleta" ? "Boleta" : "Nota") + '</td>' +
+      '<td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px"><span style="background:' + estadoColor + '18;color:' + estadoColor + ';padding:2px 8px;border-radius:10px;font-weight:700;font-size:11px">' + estado + '</span></td>' +
+      '<td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:11px;color:#6b7280;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + items + '</td>' +
+      '<td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;font-family:JetBrains Mono,monospace;font-weight:700;text-align:right">S/' + s.total.toFixed(2) + '</td>' +
+      '<td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;font-family:JetBrains Mono,monospace;text-align:right;color:#10b981">S/' + s.paid.toFixed(2) + '</td>' +
+      '<td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;font-family:JetBrains Mono,monospace;text-align:right;color:' + (s.pending > 0 ? '#ef4444' : '#9ca3af') + '">S/' + s.pending.toFixed(2) + '</td></tr>';
+  }).join("");
+
+  var prodRows = Object.keys(productMap).map(function(name) {
+    return '<tr><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;font-size:12px">' + name + '</td>' +
+      '<td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:center;font-family:JetBrains Mono,monospace">' + productMap[name].qty + '</td>' +
+      '<td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:right;font-family:JetBrains Mono,monospace;font-weight:600">S/' + productMap[name].total.toFixed(2) + '</td></tr>';
+  }).join("");
+
+  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Reporte de Ventas - ' + today + '</title>' +
+    '<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">' +
+    '<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Plus Jakarta Sans,sans-serif;padding:30px 40px;color:#1a1a2e;background:#fff}' +
+    '@media print{body{padding:15px 20px}@page{size:landscape;margin:10mm}}</style></head><body>' +
+    '<div style="display:flex;align-items:center;gap:14;margin-bottom:6px">' +
+    '<div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#0ea5e9,#06b6d4);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:800">V</div>' +
+    '<div><div style="font-size:18px;font-weight:800;letter-spacing:-0.03em">VentaFácil</div><div style="font-size:10px;color:#9ca3af;font-weight:500;text-transform:uppercase;letter-spacing:0.05em">Sistema POS</div></div></div>' +
+    '<div style="font-size:10px;color:#9ca3af;margin-bottom:24px">MI NEGOCIO S.A.C. · RUC: 20123456789 · Av. Principal 123, Lima</div>' +
+    '<h1 style="font-size:20px;font-weight:800;margin-bottom:4px">Reporte de Ventas</h1>' +
+    '<p style="font-size:13px;color:#6b7280;margin-bottom:20px">Fecha: ' + today + ' · Total de operaciones: ' + sales.length + '</p>' +
+    '<div style="display:flex;gap:12px;margin-bottom:24px">' +
+    '<div style="flex:1;padding:16px;border-radius:12px;background:#f0f2f5;border:1px solid #e5e7eb"><div style="font-size:11px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px">Total vendido</div><div style="font-size:24px;font-weight:800;font-family:JetBrains Mono,monospace">S/' + totalVentas.toFixed(2) + '</div></div>' +
+    '<div style="flex:1;padding:16px;border-radius:12px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15)"><div style="font-size:11px;color:#10b981;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px">Cobrado</div><div style="font-size:24px;font-weight:800;font-family:JetBrains Mono,monospace;color:#10b981">S/' + totalCobrado.toFixed(2) + '</div></div>' +
+    '<div style="flex:1;padding:16px;border-radius:12px;background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.12)"><div style="font-size:11px;color:#ef4444;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px">Pendiente</div><div style="font-size:24px;font-weight:800;font-family:JetBrains Mono,monospace;color:#ef4444">S/' + totalPendiente.toFixed(2) + '</div></div></div>' +
+    '<h2 style="font-size:14px;font-weight:700;margin-bottom:10px;color:#6b7280">Detalle de ventas</h2>' +
+    '<table style="width:100%;border-collapse:collapse;margin-bottom:30px"><thead><tr style="background:#f8fafc">' +
+    '<th style="padding:8px 10px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;border-bottom:2px solid #e5e7eb">Nro.</th>' +
+    '<th style="padding:8px 10px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;border-bottom:2px solid #e5e7eb">Fecha</th>' +
+    '<th style="padding:8px 10px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;border-bottom:2px solid #e5e7eb">Cliente</th>' +
+    '<th style="padding:8px 10px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;border-bottom:2px solid #e5e7eb">Tipo</th>' +
+    '<th style="padding:8px 10px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;border-bottom:2px solid #e5e7eb">Estado</th>' +
+    '<th style="padding:8px 10px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;border-bottom:2px solid #e5e7eb">Productos</th>' +
+    '<th style="padding:8px 10px;text-align:right;font-size:11px;font-weight:700;color:#6b7280;border-bottom:2px solid #e5e7eb">Total</th>' +
+    '<th style="padding:8px 10px;text-align:right;font-size:11px;font-weight:700;color:#6b7280;border-bottom:2px solid #e5e7eb">Pagado</th>' +
+    '<th style="padding:8px 10px;text-align:right;font-size:11px;font-weight:700;color:#6b7280;border-bottom:2px solid #e5e7eb">Pendiente</th></tr></thead>' +
+    '<tbody>' + salesRows + '</tbody></table>' +
+    '<h2 style="font-size:14px;font-weight:700;margin-bottom:10px;color:#6b7280">Resumen por producto</h2>' +
+    '<table style="width:50%;border-collapse:collapse"><thead><tr style="background:#f8fafc">' +
+    '<th style="padding:7px 10px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;border-bottom:2px solid #e5e7eb">Producto</th>' +
+    '<th style="padding:7px 10px;text-align:center;font-size:11px;font-weight:700;color:#6b7280;border-bottom:2px solid #e5e7eb">Cantidad</th>' +
+    '<th style="padding:7px 10px;text-align:right;font-size:11px;font-weight:700;color:#6b7280;border-bottom:2px solid #e5e7eb">Total</th></tr></thead>' +
+    '<tbody>' + prodRows + '</tbody></table>' +
+    '<div style="margin-top:30px;padding-top:16px;border-top:1px solid #e5e7eb;font-size:10px;color:#9ca3af;text-align:center">Generado por VentaFácil · ' + today + '</div>' +
+    '<script>window.onload=function(){window.print()}<\/script></body></html>';
+
+  var blob = new Blob([html], { type: "text/html" });
+  var url = URL.createObjectURL(blob);
+  window.open(url, "_blank", "width=1100,height=700");
+  setTimeout(function() { URL.revokeObjectURL(url); }, 5000);
+}
+
 const S = {
   bg: "#f0f2f5", card: "#ffffff", border: "#e5e7eb", borderLight: "#f3f4f6",
   text: "#1a1a2e", textMuted: "#6b7280", textLight: "#9ca3af",
@@ -378,7 +456,10 @@ function POS() {
                   <div style={{ fontSize: 12, color: S.textLight, fontFamily: S.mono, marginTop: 2 }}>Total: S/{todaySalesTotal.toFixed(2)}</div>
                 </div>
                 {salesHistory.length > 0 && (
-                  <button onClick={() => downloadSalesReport(salesHistory)} style={{ padding: "7px 12px", borderRadius: S.radiusSm, border: "1.5px solid " + S.greenBorder, background: S.greenBg, color: S.green, cursor: "pointer", fontSize: 11, fontWeight: 700, fontFamily: S.font, display: "flex", alignItems: "center", gap: 5 }}>📥 Reporte</button>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <button onClick={() => downloadSalesReport(salesHistory)} style={{ padding: "7px 10px", borderRadius: S.radiusSm, border: "1.5px solid " + S.greenBorder, background: S.greenBg, color: S.green, cursor: "pointer", fontSize: 11, fontWeight: 700, fontFamily: S.font, display: "flex", alignItems: "center", gap: 4 }}>📊 Excel</button>
+                    <button onClick={() => downloadSalesReportPDF(salesHistory)} style={{ padding: "7px 10px", borderRadius: S.radiusSm, border: "1.5px solid " + S.accentBorder, background: S.accentBg, color: S.accent, cursor: "pointer", fontSize: 11, fontWeight: 700, fontFamily: S.font, display: "flex", alignItems: "center", gap: 4 }}>📄 PDF</button>
+                  </div>
                 )}
               </div>
               <div style={{ flex: 1, overflowY: "auto", padding: "12px 16px" }}>
